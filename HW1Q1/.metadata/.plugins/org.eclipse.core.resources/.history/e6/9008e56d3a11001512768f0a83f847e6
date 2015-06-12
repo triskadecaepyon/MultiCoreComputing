@@ -1,0 +1,23 @@
+// TODO
+// Use MyLock to protect the count
+// This counter can use either BakeryLock or FastMutexLock to protect the count
+
+public class LockCounter extends Counter {
+	private MyLock counterlock;
+	private long value;
+    public LockCounter(MyLock lock) {
+    	counterlock = lock;
+    }
+
+    @Override
+    public void increment() {
+    	counterlock.lock(1);
+    	try{
+    		long temp = value; // in critical section
+    		value = temp + 1; // in critical section
+    	}
+    	finally{
+    		counterlock.unlock(1);
+    	}
+    }
+}

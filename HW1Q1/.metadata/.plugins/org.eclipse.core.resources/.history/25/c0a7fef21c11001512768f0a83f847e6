@@ -1,0 +1,25 @@
+// TODO
+// Implement the bakery algorithm
+
+public class BakeryLock implements MyLock {
+	int N;
+	boolean [] choosing;
+	int [] number;
+    public BakeryLock(int numThread) {
+        N = numProc;
+        choosing = new boolean[N];
+        number = new int[N];
+        for (int j = 0; j < N; j++) {
+            choosing[j] = false;
+            number[j] = 0;
+        }
+    }
+
+    @Override
+    public void lock(int myId) {
+    }
+
+    @Override
+    public void unlock(int myId) {
+    }
+}
