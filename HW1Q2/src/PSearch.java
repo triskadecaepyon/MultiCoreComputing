@@ -32,7 +32,7 @@ public class PSearch implements Callable<Integer> {
 	 {
 		 if(A[i] == x)
 		 {
-			 return Integer.valueOf(x); // return found element if there is a match
+			 return Integer.valueOf(i); // return found element index if there is a match
 		 }
 	 }
     return Integer.valueOf(-1);
