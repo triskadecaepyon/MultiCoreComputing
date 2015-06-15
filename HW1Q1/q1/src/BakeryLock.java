@@ -2,16 +2,16 @@
 // Implement the bakery algorithm
 
 public class BakeryLock implements MyLock {
-	int N;
-	boolean [] choosing;
-	int [] number;
+	protected volatile int N;
+	protected volatile boolean [] choosing;
+	protected volatile int [] number;
     public BakeryLock(int numThread) {
-        N = numThread;
-        choosing = new boolean[N];
-        number = new int[N];
+        this.N = numThread;
+        this.choosing = new boolean[N];
+        this.number = new int[N];
         for (int j = 0; j < N; j++) {
-            choosing[j] = false;
-            number[j] = 0;
+            this.choosing[j] = false;
+            this.number[j] = 0;
         }
     }
 

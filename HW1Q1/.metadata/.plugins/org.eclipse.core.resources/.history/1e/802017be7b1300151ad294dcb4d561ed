@@ -1,0 +1,12 @@
+// TODO 
+// Use synchronized to protect count
+public class SynchronizedCounter extends Counter {
+    @Override
+    public void increment() {
+         synchronized(this){
+        	int temp = this.count;
+            temp = temp + 1;
+            this.count = temp;
+         }
+    }
+}

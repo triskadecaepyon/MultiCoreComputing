@@ -46,13 +46,23 @@ public class Main{
         // Create and run threads to increment counter.
         for (int i = 0; i < numThread; i++)
         {
-        	totalThreads[i] = new Thread(incRunnable(numThread, numTotalInc, counter));
+        	totalThreads[i] = new ThreadB(i, numThread, numTotalInc, counter);
         	totalThreads[i].start();
         }
+        for (int i = 0; i < numThread; i++){
+        	try {
+				totalThreads[i].join(); // wait until all processes are complete
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
         long endTime = System.nanoTime();
-        executeTimeMS = (endTime-startTime)/1000000;
+        executeTimeMS = (endTime-startTime)/1000000; //record time taken to finish
+
         // all threads finish incrementing
         // Checking if the result is correct
+        System.out.println(counter.getCount());
         if (counter == null ||
             counter.getCount() != (numTotalInc/numThread) * numThread) {
           System.err.println("Error: The counter is not equal to the number "
@@ -62,13 +72,36 @@ public class Main{
           System.out.println(executeTimeMS);
         }
     }
+}
 
-	public static Runnable incRunnable(int numThread, int numTotalInc, Counter counter) {
+class ThreadB extends Thread {
+	public volatile int currentThread;
+	public volatile int numThread;
+	public volatile int numTotalInc;
+	public volatile Counter counter;
+
+	public ThreadB(int currentThread, int numThread, int numTotalInc, Counter counter) {
+		// Thread class constructor
+		this.currentThread = currentThread; 
+		this.numThread = numThread;
+		this.numTotalInc = numTotalInc;
+		this.counter = counter;
+	}
+	
+	public long getId()
+	{
+		return (long)currentThread; // return current thread ID to increment
+	}
+	
+	public void run() {
 		int IncPerThread = numTotalInc/numThread;
 		for (int i = 0; i < IncPerThread; i++){
-			counter.increment();
+			int temp = counter.getCount();
+			counter.increment(); // Increment counter
+			if (temp == counter.getCount())
+			{
+				System.out.println("Mutual exclusion violated!");
+			}
 		}
-		System.out.println("Runnable running " + numThread + " , " + numTotalInc);
-		return null;
 	}
 }

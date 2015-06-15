@@ -1,0 +1,30 @@
+import java.util.concurrent.*;
+
+public class TwoThreads {
+	public int [] array;
+	public int sum = 0;
+	class SumThread extends Thread {
+	  // TODO	  
+	 private int[] new_array;
+	 public SumThread(int [] array){
+			this.new_array = array;
+	 }
+
+	}
+	class MaxThread extends Thread {
+	  private int[] new_array;
+	// TODO	
+	  public MaxThread(int [] array){
+		this.new_array = array;
+	  }
+	}
+
+
+	public static void main(String[] args){
+		int a[] = {1,2,3,4,5,6,7,8,9,10};
+		// TODO: start two threads that compute the sum and the max of the array entries in parallel
+		// print them out
+		
+		
+	}
+}
