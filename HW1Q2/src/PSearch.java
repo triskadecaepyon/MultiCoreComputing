@@ -28,14 +28,13 @@ public class PSearch implements Callable<Integer> {
     // TODO: your algorithm needs to use this method to get results
     // You should search for x in A within begin and end
     // Return -1 if no such target
-	 for (int i = begin; i < end; i++)
-	 {
-		 if(A[i] == x)
-		 {
-			 return Integer.valueOf(i); // return found element index if there is a match
-		 }
-	 }
-    return Integer.valueOf(-1);
+	  try {
+		  return  parallelSearch(x, A, 6);
+	  } catch (Exception e) {
+		  e.printStackTrace();
+		  return -1;
+	  }
+
   }
 
   public static int parallelSearch(int x, int[] A, int n) {
@@ -75,7 +74,7 @@ public class PSearch implements Callable<Integer> {
 		}
 	}
 	catch(Exception e){
-		System.err.println(e);
+		e.printStackTrace();
 	}
 	
     return -1; // return -1 if the target is not found
