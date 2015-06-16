@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,8 +78,9 @@ public class PSearch implements Callable<Integer> {
 	  for (Future<Integer> thread_item : parallel_threads) {
 		  try {
 			  return_val = thread_item.get();
-			  System.out.println(return_val);
-			  return return_val;
+			  //System.out.println(return_val);
+			  if (return_val != -1)
+			  	return return_val;
 		  } catch (Exception e) {
 			  e.printStackTrace();
 		  }
