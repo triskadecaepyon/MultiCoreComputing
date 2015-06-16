@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,21 +30,10 @@ public class PSearch implements Callable<Integer> {
     // You should search for x in A within begin and end
     // Return -1 if no such target
 	  try {
-		  int last_section;
-		  int cut_size = 5;
-		  if (A.length > cut_size) {  //Cuts array into many pieces (cutoff value)
-			  last_section = A.length % cut_size;
-			  int i=0;
-			  while (i <= (A.length-cut_size)) {
-
-				  System.out.println("calling parallel search: " + x);
-				  System.out.println(i);
-				  System.out.println("A Array: " + i + " " + (i+cut_size));
-				  i=i+cut_size;
+		  for(int i=begin; i<end; i++) {
+			  if (A[i] == x) {
+				  return i;
 			  }
-			  System.out.println("Last section: " + last_section);
-		  } else { //Cut array into individual portions or less
-			  System.out.println("using cut line of 2");
 		  }
 		  return -1;
 	  } catch (Exception e) {
@@ -58,12 +48,45 @@ public class PSearch implements Callable<Integer> {
 	  // You should create a thread pool with n threads
 	  // Then you create PSearch objects and submit those objects to the thread
 	  // pool
-	  System.out.println("calling parallel search");
 	  List<Future<Integer>> parallel_threads = new ArrayList<Future<Integer>>(); // create list of threads
 	  ExecutorService thread_pool = Executors.newFixedThreadPool(n); // create thread pool
 
+	  int last_section;
+	  int cut_size = 5;
+	  int return_val;
+	  if (A.length > cut_size) {  //Cuts array into many pieces (cutoff value)
+		  last_section = A.length % cut_size;
+		  int i=0;
+		  while (i <= (A.length-cut_size)) {
+//			  System.out.println(i);
+//			  System.out.println("A Array: " + i + " " + (i+cut_size));
+			  //Call future
+			  Future<Integer> thread_search = thread_pool.submit(new PSearch(x, A, i, (i+cut_size)));
+			  parallel_threads.add(thread_search);
+			  i=i+cut_size;
+		  }
+//		  System.out.println("Last section: " + last_section);
+		  if (last_section > 0) {
+			  Future<Integer> thread_search = thread_pool.submit(new PSearch(x, A, A.length - last_section, A.length));
+			  parallel_threads.add(thread_search);
+		  }
+	  } else { //Less that cut size
+//		  System.out.println("Search all");
+		  Future<Integer> thread_search = thread_pool.submit(new PSearch(x, A, 0, A.length));
+		  parallel_threads.add(thread_search);
+	  }
+
+	  for (Future<Integer> thread_item : parallel_threads) {
+		  try {
+			  return_val = thread_item.get();
+			  System.out.println(return_val);
+			  return return_val;
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
+
+	  }
 
 	  return -1;
-
   }
 }
