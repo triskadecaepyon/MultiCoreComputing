@@ -79,14 +79,17 @@ public class PSearch implements Callable<Integer> {
 		  try {
 			  return_val = thread_item.get();
 			  //System.out.println(return_val);
-			  if (return_val != -1)
-			  	return return_val;
+			  if (return_val != -1) {
+				  thread_pool.shutdown();
+				  return return_val;
+			  }
+
 		  } catch (Exception e) {
 			  e.printStackTrace();
 		  }
 
 	  }
-
+	  thread_pool.shutdown();
 	  return -1;
   }
 }
