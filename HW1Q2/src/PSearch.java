@@ -29,7 +29,23 @@ public class PSearch implements Callable<Integer> {
     // You should search for x in A within begin and end
     // Return -1 if no such target
 	  try {
-		  return  parallelSearch(x, A, 6);
+		  int last_section;
+		  int cut_size = 5;
+		  if (A.length > cut_size) {  //Cuts array into many pieces (cutoff value)
+			  last_section = A.length % cut_size;
+			  int i=0;
+			  while (i <= (A.length-cut_size)) {
+
+				  System.out.println("calling parallel search: " + x);
+				  System.out.println(i);
+				  System.out.println("A Array: " + i + " " + (i+cut_size));
+				  i=i+cut_size;
+			  }
+			  System.out.println("Last section: " + last_section);
+		  } else { //Cut array into individual portions or less
+			  System.out.println("using cut line of 2");
+		  }
+		  return -1;
 	  } catch (Exception e) {
 		  e.printStackTrace();
 		  return -1;
@@ -38,47 +54,16 @@ public class PSearch implements Callable<Integer> {
   }
 
   public static int parallelSearch(int x, int[] A, int n) {
-    // TODO: your search algorithm goes here
-    // You should create a thread pool with n threads 
-    // Then you create PSearch objects and submit those objects to the thread
-    // pool
-	int begin = 0, end = 0, segment = 0;
-	List <Future<Integer>> parallelthreads = new ArrayList<Future<Integer>>(); // create list of threads
-	ExecutorService threadpool = Executors.newFixedThreadPool(n); // create
-	try{
-		if (A.length/n >= 1) // Check if there can be at least one array element per thread
-		{
-			segment = A.length/n;
-			for (int i = 0; i < n; i++){
-				// Update the begin and end indices
-				if ((end + segment) < A.length)
-				{
-					end = end + segment;
-				}
-				else
-				{
-					end = A.length - 1;
-				}
-				Future<Integer>newthread = threadpool.submit(new PSearch(x, A, begin, end));
-				parallelthreads.add(newthread); // Populate thread list
-				begin = end; 
-			}
-			for (Future<Integer>ListElement:parallelthreads){
-				if (ListElement.get() != -1)
-					return ListElement.get(); // return matching element if found
-			}
-		}
-		else{ // Create single thread to handle array check
-			Future<Integer>newthread = threadpool.submit(new PSearch(x, A, begin, end));
-			return newthread.get();
-		}
-	}
-	catch(Exception e){
-		e.printStackTrace();
-	}
-	
-    return -1; // return -1 if the target is not found
+	  // TODO: your search algorithm goes here
+	  // You should create a thread pool with n threads
+	  // Then you create PSearch objects and submit those objects to the thread
+	  // pool
+	  System.out.println("calling parallel search");
+	  List<Future<Integer>> parallel_threads = new ArrayList<Future<Integer>>(); // create list of threads
+	  ExecutorService thread_pool = Executors.newFixedThreadPool(n); // create thread pool
+
+
+	  return -1;
+
   }
-
-
 }
