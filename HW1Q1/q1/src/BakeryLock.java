@@ -1,42 +1,45 @@
+import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 // TODO
 // Implement the bakery algorithm
 
 public class BakeryLock implements MyLock {
 	protected volatile int N;
-	protected volatile boolean [] choosing;
-	protected volatile int [] number;
+	protected volatile AtomicBoolean [] choosing; // make boolean array atomic
+	protected volatile AtomicIntegerArray number; // Make int array atomic
     public BakeryLock(int numThread) {
-        this.N = numThread;
-        this.choosing = new boolean[N];
-        this.number = new int[N];
+        N = numThread;
+        choosing = new AtomicBoolean[N];
+        number = new AtomicIntegerArray(N);
         for (int j = 0; j < N; j++) {
-            this.choosing[j] = false;
-            this.number[j] = 0;
+            choosing[j] = new AtomicBoolean(false);
+            number.set(j,0);
         }
     }
 
     @Override
     public void lock(int myId) {
         // step 1: doorway: choose a number
-        choosing[myId] = true;
+        choosing[myId].set(true);
         for (int j = 0; j < N; j++)
-            if (number[j] > number[myId])
-                number[myId] = number[j];
-        number[myId]++;
-        choosing[myId] = false;
+            if (number.get(j) > number.get(myId))
+                number.set(myId, number.get(j));
+        number.set(myId, number.get(myId)+1);
+        choosing[myId].set(false);;
 
         // step 2: check if my number is the smallest
         for (int j = 0; j < N; j++) {
-            while (choosing[j]) ; // process j in doorway
-            while ((number[j] != 0) &&
-                    ((number[j] < number[myId]) ||
-                    ((number[j] == number[myId]) && j < myId)))
+            while (choosing[j].get()) ; // process j in doorway
+            while ((number.get(j) != 0) &&
+                    ((number.get(j) < number.get(myId) ||
+                    ((number.get(j) == number.get(myId)) && j < myId))))
                 ; // busy wait
         }
     }
 
     @Override
     public void unlock(int myId) {
-    	number[myId] = 0;
+    	number.set(myId, 0);
     }
 }
