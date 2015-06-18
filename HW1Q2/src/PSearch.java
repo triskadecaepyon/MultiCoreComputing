@@ -51,9 +51,13 @@ public class PSearch implements Callable<Integer> {
 	  ExecutorService thread_pool = Executors.newFixedThreadPool(n); // create thread pool
 
 	  int last_section;
-	  int cut_size = 5;
+	  int cut_size = A.length/n; // divide tasks evenly amongst threads
 	  int return_val;
-	  if (A.length > cut_size) {  //Cuts array into many pieces (cutoff value)
+	  if (n <= 0) // Check for invalid thread number
+	  {
+		  return -1;
+	  }
+	  if (A.length > cut_size && cut_size != 0) {  //Cuts array into many pieces (cutoff value)
 		  last_section = A.length % cut_size;
 		  int i=0;
 		  while (i <= (A.length-cut_size)) {
