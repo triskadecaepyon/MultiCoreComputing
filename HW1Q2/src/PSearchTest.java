@@ -50,7 +50,7 @@ public class PSearchTest {
 		{
     	   a[i] = (int) (Math.pow(i, 3) + 3*Math.pow(i, 2) + 3*Math.pow(i, 2) + 1);
 		}
-		return_val = PSearch.parallelSearch(897, a, 1);
+		int return_val = PSearch.parallelSearch(897, a, 1);
         System.out.println(return_val);
         assertTrue(return_val==8);
     }
@@ -58,7 +58,7 @@ public class PSearchTest {
 	@Test
 	public void testParallelSearchMultiple() throws Exception {
          int a[] = {1, 3, 15, 4, 6, 7, 1, 4, 15, 3, 2, 1};
-         return_val = PSearch.parallelSearch(4, a, 6);
+         int return_val = PSearch.parallelSearch(4, a, 6);
          System.out.println(return_val);
          assertTrue(return_val==3||return_val==7);
     }
