@@ -2,7 +2,7 @@
 // Use synchronized, wait(), notify(), and notifyAll() to implement this
 // bathroom protocol
 
-public class SyncBathroomProtocol extends BathroomProtocol {
+public class SyncBathroomProtocol implements BathroomProtocol {
 
   public void enterMale() {
 

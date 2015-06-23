@@ -3,7 +3,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 
 // Use locks and condition variables to implement this bathroom protocol
-public class LockBathroomProtocol extends BathroomProtocol {
+public class LockBathroomProtocol implements BathroomProtocol {
   // declare the lock and conditions here
     ReentrantLock doorcheck = new ReentrantLock();
     ReentrantLock enter_or_exit = new ReentrantLock();
@@ -16,14 +16,16 @@ public class LockBathroomProtocol extends BathroomProtocol {
         pid++;
         System.out.println(current_id);
 
-        if (doorcheck.isLocked() || enter_or_exit.isLocked()) {
-            //Door isn't locked, try to get in
-        } else {
+        while (!doorcheck.isLocked()) {
             enter_or_exit.lock();
+            System.out.println("locked by: " + current_id);
             maleInRestroom = true;
             enter_or_exit.unlock();
             doorcheck.lock();
         }
+        //Door is locked, try to get it.
+        doorcheck.lock();
+        System.out.println("Queued " + doorcheck.hasQueuedThreads());
     }
 
     public void leaveMale() {

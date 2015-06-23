@@ -9,11 +9,19 @@ public class LockBathroomProtocolTest {
 
     @Test
     public void testEnterMale() throws Exception {
-        LockBathroomProtocol my_protocol = new LockBathroomProtocol();
-        my_protocol.enterMale();
-        my_protocol.enterMale();
-        my_protocol.leaveMale();
-        my_protocol.leaveMale();
+        final LockBathroomProtocol my_protocol = new LockBathroomProtocol();
+        Thread entering_test = new Thread() {
+            @Override
+            public void run() {
+                my_protocol.enterMale();
+            }
+        };
+        Thread
+        try {
+            entering_test.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 //    @Test
