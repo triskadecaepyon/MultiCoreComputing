@@ -33,7 +33,7 @@ public class CyclicBarrier {
             int temp = index; 
             index = temp + 1; // increment index
             int arrival_index = temp; // record entering index
-            if( index == parties-1){
+            if( index == parties){
             	turnstileTwo.acquire();
             	turnstileOne.release();
             }
