@@ -3,12 +3,12 @@
 // You should implement LockBathroomProtocol and SyncBathroomProtocol by
 // implementing this class
 
-public interface BathroomProtocol {
-  public void enterMale();
+public abstract class BathroomProtocol {
+  public abstract void enterMale();
 
-  public void leaveMale();
+  public abstract void leaveMale();
 
-  public void enterFemale();
+  public abstract void enterFemale();
 
-  public void leaveFemale();
+  public abstract void leaveFemale();
 }
