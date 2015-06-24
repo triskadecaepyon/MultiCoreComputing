@@ -8,32 +8,34 @@ import static org.junit.Assert.*;
 public class LockBathroomProtocolTest {
 
     @Test
-    public void testEnterMale() throws Exception {
+    public void testEnterMaleForTwoIter() throws Exception {
         final LockBathroomProtocol my_protocol = new LockBathroomProtocol();
         Thread entering_test = new Thread() {
             @Override
             public void run() {
                 my_protocol.enterMale();
-                try {
-                    Thread.sleep(30);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 my_protocol.leaveMale();
+                my_protocol.enterFemale();
             }
         };
         Thread second_entering = new Thread() {
             @Override
             public void run() {
                 my_protocol.enterMale();
-                //Do stuff
                 my_protocol.leaveMale();
+                my_protocol.enterFemale();
+                my_protocol.enterFemale();
             }
         };
         try {
             entering_test.start();
             second_entering.start();
-            entering_test.join();
+            while (entering_test.isAlive()) {
+                //System.out.println("First: " + entering_test.isAlive() + " " + second_entering.isAlive());
+            }
+            while (second_entering.isAlive()) {
+                //System.out.println("Second: " + entering_test.isAlive() + " " + second_entering.isAlive());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,7 +43,35 @@ public class LockBathroomProtocolTest {
 
 //    @Test
 //    public void testLeaveMale() throws Exception {
-//
+//        final LockBathroomProtocol my_protocol = new LockBathroomProtocol();
+//        Thread entering_test = new Thread() {
+//            @Override
+//            public void run() {
+//                my_protocol.enterMale();
+//                my_protocol.leaveMale();
+//                System.out.println("I am all done");
+//            }
+//        };
+//        Thread second_entering = new Thread() {
+//            @Override
+//            public void run() {
+//                my_protocol.enterMale();
+//                System.out.println("I should be able to enter");
+//                my_protocol.leaveMale();
+//            }
+//        };
+//        try {
+//            entering_test.start();
+//            second_entering.start();
+//            while (entering_test.isAlive()) {
+//                System.out.println("First: " + entering_test.isAlive() + " " + second_entering.isAlive());
+//            }
+//            while (second_entering.isAlive()) {
+//                System.out.println("Second: " + entering_test.isAlive() + " " + second_entering.isAlive());
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 //    }
 //
 //    @Test
