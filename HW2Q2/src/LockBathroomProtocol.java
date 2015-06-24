@@ -14,8 +14,7 @@ public class LockBathroomProtocol implements BathroomProtocol {
     public void enterMale() {
         int current_id = pid;
         pid++;
-        System.out.println(current_id);
-
+        System.out.println("Current ID: " + current_id + " " + doorcheck.isHeldByCurrentThread());
         while (!doorcheck.isLocked()) {
             enter_or_exit.lock();
             System.out.println("locked by: " + current_id);
@@ -23,9 +22,7 @@ public class LockBathroomProtocol implements BathroomProtocol {
             enter_or_exit.unlock();
             doorcheck.lock();
         }
-        //Door is locked, try to get it.
-        doorcheck.lock();
-        System.out.println("Queued " + doorcheck.hasQueuedThreads());
+        System.out.println("Held by current thread " + doorcheck.isHeldByCurrentThread());
     }
 
     public void leaveMale() {

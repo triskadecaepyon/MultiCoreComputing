@@ -14,11 +14,26 @@ public class LockBathroomProtocolTest {
             @Override
             public void run() {
                 my_protocol.enterMale();
+                try {
+                    Thread.sleep(30);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                my_protocol.leaveMale();
             }
         };
-        Thread
+        Thread second_entering = new Thread() {
+            @Override
+            public void run() {
+                my_protocol.enterMale();
+                //Do stuff
+                my_protocol.leaveMale();
+            }
+        };
         try {
             entering_test.start();
+            second_entering.start();
+            entering_test.join();
         } catch (Exception e) {
             e.printStackTrace();
         }
