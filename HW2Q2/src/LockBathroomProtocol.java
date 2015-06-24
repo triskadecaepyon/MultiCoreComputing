@@ -23,7 +23,7 @@ public class LockBathroomProtocol implements BathroomProtocol {
             //Get out
             System.out.println("Females in Restroom");
             male_queue++;
-            System.out.println("Male Queue" + male_queue);
+            System.out.println("Male Queue: " + male_queue);
         } else if (female_queue > male_queue) {
             //wait turn
             System.out.println("More females waiting in line than males");
@@ -34,6 +34,10 @@ public class LockBathroomProtocol implements BathroomProtocol {
             }
         } else {
             male_count++;
+            if (male_queue > 0) {
+                male_queue--;
+                System.out.println("Male Queue: " + male_queue);
+            }
             System.out.println("Get in and use restroom (M)");
             System.out.println("Current M in restroom: " + male_count);
         }
@@ -65,7 +69,7 @@ public class LockBathroomProtocol implements BathroomProtocol {
             //Get out
             System.out.println("Female attempted enter: Males in Restroom");
             female_queue++;
-            System.out.println("Female Queue" + female_queue);
+            System.out.println("Female Queue: " + female_queue);
         } else if (male_queue > female_queue) {
             //wait turn
             System.out.println("More males waiting in line than females");
@@ -76,6 +80,10 @@ public class LockBathroomProtocol implements BathroomProtocol {
             }
         } else {
             female_count++;
+            if (female_queue > 0) {
+                female_queue--;
+                System.out.println("Female Queue: " + female_queue);
+            }
             System.out.println("Get in and use restroom (F)");
             System.out.println("Current F in restroom: " + female_count);
         }
