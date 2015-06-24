@@ -32,7 +32,7 @@ public class CyclicBarrier {
             inc.acquire(); // enter mutex
             int temp = index; 
             index = temp + 1; // increment index
-            int arrival_index = temp; // record entering index
+            int arrival_index = parties - temp - 1; // record entering index
             if( index == parties){
             	turnstileTwo.acquire();
             	turnstileOne.release();
