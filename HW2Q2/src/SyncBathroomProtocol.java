@@ -14,13 +14,14 @@ public class SyncBathroomProtocol implements BathroomProtocol {
     public void enterMale() {
         synchronized(this) {
             while(!restroom_access) {
-              //female_count > 0 || female_queue > male_queue
               try {
+                  System.out.println("Male having to wait");
                   wait();
               }
               catch(Exception e){
                   e.printStackTrace();}
             }
+            restroom_access = false;
             System.out.println("Not waiting anymore (enterMale)");
             if(female_count > 0 || (female_queue > male_queue && male_count==0))
               male_queue++;
@@ -28,7 +29,10 @@ public class SyncBathroomProtocol implements BathroomProtocol {
               male_count++;
             }
             System.out.println("EM: " + male_count + " " + male_queue);
-            restroom_access = false;
+            //If you can enter, clear our queue
+            male_queue = 0;
+            restroom_access = true;
+            notifyAll();
         }
     }
 
@@ -49,11 +53,13 @@ public class SyncBathroomProtocol implements BathroomProtocol {
         synchronized (this) {
             while (!restroom_access) {
                 try {
+                    System.out.println("Female having to wait");
                     wait();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+            restroom_access = false;
             System.out.println("Not waiting anymore (enterFemale)");
             if (male_count > 0 || (male_queue > female_queue && female_count == 0))
                 female_queue++;
@@ -61,7 +67,8 @@ public class SyncBathroomProtocol implements BathroomProtocol {
                 female_count++;
             }
             System.out.println("FM: " + female_count + " " + female_queue);
-            restroom_access = false;
+            restroom_access = true;
+            notifyAll();
         }
     }
 
@@ -73,6 +80,8 @@ public class SyncBathroomProtocol implements BathroomProtocol {
                 female_count--;
             }
             System.out.println("FM: " + female_count + " " + female_queue);
+            //If you can enter, clear our queue
+            female_queue = 0;
             restroom_access = true;
             notifyAll();
       }
