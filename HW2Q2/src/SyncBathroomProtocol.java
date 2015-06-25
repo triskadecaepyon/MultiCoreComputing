@@ -2,7 +2,7 @@
 // Use synchronized, wait(), notify(), and notifyAll() to implement this
 // bathroom protocol
 
-public class SyncBathroomProtocol extends BathroomProtocol {
+public class SyncBathroomProtocol implements BathroomProtocol {
 
   int male_count = 0;
   int female_count = 0;
