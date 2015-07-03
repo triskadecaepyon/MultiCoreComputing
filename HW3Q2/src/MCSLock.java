@@ -16,7 +16,7 @@ public class MCSLock implements MyLock {
 	}
 	
     public MCSLock(int numThread) {
-        tailNode = new AtomicReference<>(null);    
+        tailNode = new AtomicReference<Node>(null);
         myNode = new ThreadLocal<Node>(){                  
             @Override
             protected Node initialValue()

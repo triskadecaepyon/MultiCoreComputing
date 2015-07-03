@@ -1,5 +1,5 @@
 // TODO 
-// Implement Anderson’s array-based lock
+// Implement Andersons array-based lock
 import java.util.concurrent.atomic.*;
 
 public class ALock implements MyLock {
@@ -20,13 +20,15 @@ public class ALock implements MyLock {
 
     @Override
     public void lock(int myId) {
-    	mySlot.set(tailSlot.getAndIncrement( ) % numThread) ;// TODO: the locking algorithm
+    	mySlot.set(tailSlot.getAndIncrement() % numThread) ;// TODO: the locking algorithm
     	while(!Available[mySlot.get()]);
+        System.out.println("Lock: " + myId);
     }
 
     @Override
     public void unlock(int myId) {
       // TODO: the unlocking algorithm
+        System.out.println("Unlock: " + myId);
     	Available[mySlot.get()] = false ;
     	Available[(mySlot.get()+1)%numThread] = true ;
     }
