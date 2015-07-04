@@ -56,4 +56,20 @@ public class ALockTest {
         thread2.start();
         System.out.println("finished locked test");
     }
+
+    @Test
+    public void testNlockedAtOneBigM() {
+        //n = 2, m = 2
+        final ALock testlock = new ALock(1);
+        testlock.mySlot.set(1200000);
+        Thread thread1 = new Thread() {
+            @Override
+            public void run() {
+                testlock.lock(2);
+                testlock.unlock(2);
+            }
+        };
+        thread1.start();
+        System.out.println("finished locked test");
+    }
 }
