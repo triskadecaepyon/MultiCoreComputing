@@ -9,11 +9,12 @@
 #include <stdbool.h>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 void print_matrix(double *matrix, int m, int n){
 	for (int i = 0; i < m; i++){
             for(int j = 0; j < n; j++){
-		printf("%lf ", *((matrix+i*n) + j));
+		printf("%f ", matrix[i*n+j]);
 	    }
             printf("\n");
 	}
@@ -32,23 +33,44 @@ double* C, int T) {
 // parameter C: indicates the matrix C, which is the results of A x B
 // parameter T: indicates the number of threads
 // return true if A and B can be multiplied; otherwise, return false
-	return false;
+        printf("In function\n");
+        int i, j, k;
+	if(colA != rowB) // incompatible matrix dimensions!
+	{
+	   printf("Incompatible Matrix Dimensions!\n");
+	   return false;
+	}
+	#pragma omp parallel num_threads(T) shared(A, B, C) private(i, j, k)
+	{
+	#pragma omp for schedule(static)
+		for (i = 0 ; i < rowA; i++)
+		{
+			for(j = 0; j < colB; j++)
+			{
+		   		double sum = 0;
+		   		for (k = 0; k < colA; k++) 
+				{
+	          			 sum = sum + A[i*colA+k] * B[k*colB+j];
+        			}
+			   	C[i*colB+j] = sum;
+			}
+		}
+	}
+	return true;
 }
 
 void matrixPop(int row, int col, double* matrix, char* arg){
 
     std::string line;
     std::ifstream infileOne(arg);
-    double first_matrix[row][col];
+    std::getline(infileOne, line);
     for(int i = 0; i < row; i++){
-	std::getline(infileOne, line);
+        std::getline(infileOne, line);
         std::istringstream iss(line);
         for(int j = 0; j < col; j++){
-	    iss >> first_matrix[i][j];
+	   iss >> matrix[i*col+j];
 	}
     }
-    matrix = (double*)first_matrix;
-    print_matrix(matrix, row, col);
     return;
 }
 
@@ -60,6 +82,7 @@ int main( int argc, char *argv[] ) {
     int T;
     double* A;
     double* B;
+    double* C;
     // Determine if all the necessary arguments are there
     if (argc < 3) {
         printf("Need all 3 arguments");
@@ -77,12 +100,15 @@ int main( int argc, char *argv[] ) {
     std::getline(infileOne, line);
     std::istringstream iss_one(line);
 
+    T = atoi(argv[3]);
     if (!(iss_one >> ROWA >> COLA)) { 
 	printf("Something bad happened!");
 	return 0; 
     } // error
     printf("%d, %d\n", ROWA, COLA);
+    A = new double[ROWA*COLA];
     matrixPop(ROWA, COLA, A, argv[1]);
+    print_matrix(A, ROWA, COLA);
 
     std::getline(infileTwo, line);
     std::istringstream iss_two(line);
@@ -91,12 +117,12 @@ int main( int argc, char *argv[] ) {
 	printf("Something bad happened!");
 	return 0; 
     } // error
-    
-    matrixPop(ROWB, COLB, B, argv[2]);   
-#pragma omp parallel
-    {
-        printf("Hello world test!\n");
-        printf("Number of processors: %d \n", omp_get_num_procs());
-    }
+
+    B = new double[ROWB*COLB];
+    matrixPop(ROWB, COLB, B, argv[2]);
+    print_matrix(B, ROWB, COLB);
+    C = new double[ROWA*COLB];
+    MatrixMult(ROWA, COLA, A, ROWB, COLB, B, C, T);
+    print_matrix(C, ROWA, COLB);
     return 0;
 }
