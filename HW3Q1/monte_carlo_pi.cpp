@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #define SEED 35791246
+#define CHUNKSIZE 3
 
 double MonteCarloPi(int s) {
 // TODO: Implement your Monte Carlo Method
@@ -16,6 +17,7 @@ double MonteCarloPi(int s) {
     /* initialize random numbers */
     srand(SEED);
     count = 0;
+    int chunk = CHUNKSIZE;
 #pragma omp parallel shared(chunk) private(i,x,y,z) reduction(+:count)
     {
 
