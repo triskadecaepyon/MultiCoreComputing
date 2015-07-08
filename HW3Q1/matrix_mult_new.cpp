@@ -11,6 +11,10 @@
 #include <sstream>
 #include <iostream>
 #include <cstdlib>
+#include <time.h>
+#include <ctime>
+
+#define CHUNKSIZE 10
 
 using std::cout;
 using std::endl;
@@ -22,10 +26,10 @@ void print_matrix(double *matrix, int m, int n){
 	for (int i = 0; i < m; i++){
             for(int j = 0; j < n; j++){
 		outfile << matrix[i*n+j] << " "; // write one line to file
-		printf("%.1f ", matrix[i*n+j]);
+//		printf("%.1f ", matrix[i*n+j]);
 	    }
 	    outfile << endl; // newline
-            printf("\n");
+//            printf("\n");
 	}
 	outfile.close();
 }
@@ -44,6 +48,9 @@ double* C, int T) {
 // parameter T: indicates the number of threads
 // return true if A and B can be multiplied; otherwise, return false
 	double sum = 0;
+	int chunk = CHUNKSIZE;
+	clock_t time;
+	int part_rows = rowA*colB/T;
         printf("In function\n");
         int i, j, k;
 	if(colA != rowB) // incompatible matrix dimensions!
@@ -51,23 +58,25 @@ double* C, int T) {
 	   printf("Incompatible Matrix Dimensions!\n");
 	   return false;
 	}
-	#pragma omp parallel num_threads(T) shared(A, B, C) private(i, j, k, sum) //run process in parallel
+	time = clock();
+	#pragma omp parallel num_threads(T) shared(A, B, C, chunk) private(i, j, k, sum) //run process in parallel
 	{
-	 printf("Number of threads: %d \n", omp_get_num_threads());
-	#pragma omp for schedule(static)
+	#pragma omp for schedule(static, chunk)
 		for (i = 0 ; i < rowA; i++)
 		{
 			for(j = 0; j < colB; j++)
 			{
 		   		for (k = 0; k < colA; k++) 
 				{
-	          			 sum += A[i*colA+k] * B[k*colB+j]; // sum up multiplied pairs for C[i][j]
+	          			 sum = sum + A[i*colA+k] * B[k*colB+j]; // sum up multiplied pairs for C[i][j]
         			}
 				C[i*colB+j] = sum; //Update C[i][j]
 				sum = 0; // clear sum variable for reuse
 			}
 		}
 	}
+	time = clock()-time;
+	cout << "time is: " << time/(CLOCKS_PER_SEC/1000) << endl;
 	return true;
 }
 
@@ -95,6 +104,7 @@ int main( int argc, char *argv[] ) {
     int T;
     double* A;
     double* B;
+
     double* C;
     // Determine if all the necessary arguments are there
     if (argc < 3) {
@@ -135,7 +145,6 @@ int main( int argc, char *argv[] ) {
 
     C = new double[ROWA*COLB]; //dynamically create destination matrix
 
-    
     if(MatrixMult(ROWA, COLA, A, ROWB, COLB, B, C, T)) {
 	print_matrix(C, ROWA, COLB); //Display matrix result
     } else {
