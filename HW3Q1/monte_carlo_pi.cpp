@@ -20,7 +20,7 @@ double MonteCarloPi(int s) {
     int chunk = CHUNKSIZE;
 #pragma omp parallel shared(chunk) private(i,x,y,z) reduction(+:count)
     {
-
+	printf("NUMThreads: %d\n", omp_get_num_procs());
 #pragma omp for schedule(dynamic,chunk)
         for (i = 0; i < niter; i++) {
             x = (double) rand() / RAND_MAX;
