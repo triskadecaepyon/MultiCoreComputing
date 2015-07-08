@@ -9,16 +9,25 @@
 #include <stdbool.h>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <cstdlib>
+
+using std::cout;
+using std::endl;
 
 void print_matrix(double *matrix, int m, int n){
 // Function displays the resultant matrix in commandline
+	std::ofstream outfile("output.txt"); // create instance of new outputfile
+	outfile << m << " " << n << endl; // add the matrix dimensions to the first line 
 	for (int i = 0; i < m; i++){
             for(int j = 0; j < n; j++){
+		outfile << matrix[i*n+j] << " "; // write one line to file
 		printf("%.1f ", matrix[i*n+j]);
 	    }
+	    outfile << endl; // newline
             printf("\n");
 	}
+	outfile.close();
 }
 
 bool MatrixMult(int rowA, int colA, double* A, int rowB, int colB, double* B,
@@ -44,6 +53,7 @@ double* C, int T) {
 	}
 	#pragma omp parallel num_threads(T) shared(A, B, C) private(i, j, k, sum) //run process in parallel
 	{
+	 printf("Number of threads: %d \n", omp_get_num_threads());
 	#pragma omp for schedule(static)
 		for (i = 0 ; i < rowA; i++)
 		{
@@ -73,6 +83,7 @@ void matrixPop(int row, int col, double* matrix, char* arg){
 	   iss >> matrix[i*col+j]; // populate matrix array with corresponding element from file
 	}
     }
+    infileOne.close(); // close file following execution
     return;
 }
 
@@ -110,7 +121,6 @@ int main( int argc, char *argv[] ) {
     printf("%d, %d\n", ROWA, COLA);
     A = new double[ROWA*COLA]; //dynamically create matrix A
     matrixPop(ROWA, COLA, A, argv[1]); //populate matrix A
-//    print_matrix(A, ROWA, COLA);
 
     std::getline(infileTwo, line);
     std::istringstream iss_two(line);
@@ -122,9 +132,17 @@ int main( int argc, char *argv[] ) {
 
     B = new double[ROWB*COLB]; //dynamically create matrix B
     matrixPop(ROWB, COLB, B, argv[2]); //populate matrix B
-//    print_matrix(B, ROWB, COLB);
+
     C = new double[ROWA*COLB]; //dynamically create destination matrix
-    MatrixMult(ROWA, COLA, A, ROWB, COLB, B, C, T); //Matrix multiplication
-    print_matrix(C, ROWA, COLB); //Display matrix result
+
+    
+    if(MatrixMult(ROWA, COLA, A, ROWB, COLB, B, C, T)) {
+	print_matrix(C, ROWA, COLB); //Display matrix result
+    } else {
+	cout << "the colA != rowB MatrixMult return false" << endl;
+    }    
+
+    infileOne.close();
+    infileTwo.close();
     return 0;
 }
