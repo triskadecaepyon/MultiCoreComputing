@@ -19,12 +19,15 @@ using std::endl;
 void print_matrix(double *matrix, int m, int n){
 // Function writes resultant matrix to outputfile
 	std::ofstream outfile("output.txt"); // create instance of new outputfile
-	outfile << m << " " << n << endl; // add the matrix dimensions to the first line 
+	outfile << m << " " << n << endl; // add the matrix dimensions to the first line
+	cout << m << " " << n << endl; // print dimensions to commandline 
 	for (int i = 0; i < m; i++){
             for(int j = 0; j < n; j++){
 		outfile << matrix[i*n+j] << " "; // write one line to file
+		cout << matrix[i*n+j] << " ";
 	    }
 	    outfile << endl; // newline
+	    cout << endl;
 	}
 	outfile.close();
 }
@@ -49,7 +52,6 @@ double* C, int T) {
         int i, j, k;
 	if(colA != rowB) // incompatible matrix dimensions!
 	{
-	   printf("Incompatible Matrix Dimensions!\n");
 	   return false;
 	}
 	time = clock();
@@ -70,7 +72,7 @@ double* C, int T) {
 	}
         end = omp_get_wtime();
 	time = clock()-time;
-	cout << "time is: " << time/(CLOCKS_PER_SEC/1000) << endl;
+//	cout << "time is: " << time/(CLOCKS_PER_SEC/1000) << endl;
 	cout << "Total Execution time in seconds: " << end - start << endl; //Display execution time
 	return true;
 }
@@ -106,9 +108,9 @@ int main( int argc, char *argv[] ) {
         printf("Need all 3 arguments");
         return 0;
     } else {
-        printf("File 1: %s, ", argv[1]);
-        printf("File 2: %s, ", argv[2]);
-        printf("Threads: %s \n", argv[3]);
+//        printf("File 1: %s, ", argv[1]);
+//        printf("File 2: %s, ", argv[2]);
+//        printf("Threads: %s \n", argv[3]);
     }
     
     std::ifstream infileOne(argv[1]);
@@ -119,11 +121,11 @@ int main( int argc, char *argv[] ) {
     std::istringstream iss_one(line);
 
     T = atoi(argv[3]); // convert thread number from string to int
+
     if (!(iss_one >> ROWA >> COLA)) { 
-	printf("Something bad happened!"); //Invalid file
+	printf("Invalid input file!"); //Invalid file
 	return 0; 
     } // error
-    printf("%d, %d\n", ROWA, COLA);
     A = new double[ROWA*COLA]; //dynamically create matrix A
     matrixPop(ROWA, COLA, A, argv[1]); //populate matrix A
 
@@ -131,7 +133,7 @@ int main( int argc, char *argv[] ) {
     std::istringstream iss_two(line);
 
     if (!(iss_two >> ROWB >> COLB)) { 
-	printf("Something bad happened!"); //invalid file
+	printf("Invalid input file!"); //invalid file
 	return 0; 
     } // error
 
