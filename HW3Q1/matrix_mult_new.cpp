@@ -45,6 +45,8 @@ double* C, int T) {
 // parameter T: indicates the number of threads
 // return true if A and B can be multiplied; otherwise, return false
 	double sum = 0;
+        double start = omp_get_wtime();
+        double end;
 	int chunk = CHUNKSIZE;
 	clock_t time;
         printf("In function\n");
@@ -55,9 +57,9 @@ double* C, int T) {
 	   return false;
 	}
 	time = clock();
-	#pragma omp parallel num_threads(T) shared(A, B, C, chunk) private(i, j, k) //run process in parallel
+	#pragma omp parallel num_threads(T) shared(A, B, C) private(i, j, k) //run process in parallel
 	{
-	#pragma omp for schedule(dynamic, chunk)
+	#pragma omp for schedule(dynamic)
 		for (i = 0 ; i < rowA; i++)
 		{
 			for(j = 0; j < colB; j++)
@@ -72,8 +74,10 @@ double* C, int T) {
 			}
 		}
 	}
+        end = omp_get_wtime();
 	time = clock()-time;
 	cout << "time is: " << time/(CLOCKS_PER_SEC/1000) << endl;
+	cout << "OPENMP: execution time: " << end - start << endl;
 	return true;
 }
 
@@ -147,7 +151,6 @@ int main( int argc, char *argv[] ) {
     } else {
 	cout << "the colA != rowB MatrixMult return false" << endl;
     }    
-
     infileOne.close();
     infileTwo.close();
     return 0;
