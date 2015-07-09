@@ -1,9 +1,6 @@
 //
 // Created by Yinzhe Lu on 7/7/15.
 //
-
-#include "matrix_mult.h"
-
 #include <omp.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -50,7 +47,6 @@ double* C, int T) {
 	double sum = 0;
 	int chunk = CHUNKSIZE;
 	clock_t time;
-	int part_rows = rowA*colB/T;
         printf("In function\n");
         int i, j, k;
 	if(colA != rowB) // incompatible matrix dimensions!
@@ -59,19 +55,20 @@ double* C, int T) {
 	   return false;
 	}
 	time = clock();
-	#pragma omp parallel num_threads(T) shared(A, B, C, chunk) private(i, j, k, sum) //run process in parallel
+	#pragma omp parallel num_threads(T) shared(A, B, C, chunk) private(i, j, k) //run process in parallel
 	{
-	#pragma omp for schedule(static, chunk)
+	#pragma omp for schedule(dynamic, chunk)
 		for (i = 0 ; i < rowA; i++)
 		{
 			for(j = 0; j < colB; j++)
 			{
+				C[i*colB+j] = 0;
 		   		for (k = 0; k < colA; k++) 
 				{
-	          			 sum = sum + A[i*colA+k] * B[k*colB+j]; // sum up multiplied pairs for C[i][j]
+	          			 C[i*colB+j] = C[i*colB+j] + A[i*colA+k] * B[k*colB+j]; // sum up multiplied pairs for C[i][j]
         			}
-				C[i*colB+j] = sum; //Update C[i][j]
-				sum = 0; // clear sum variable for reuse
+				//C[i*colB+j] = sum; //Update C[i][j]
+				//sum = 0; // clear sum variable for reuse
 			}
 		}
 	}
