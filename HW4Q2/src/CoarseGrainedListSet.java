@@ -2,18 +2,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CoarseGrainedListSet<T> implements ListSet<T> {
     private Node head;
-    ReentrantLock listlock;
+    ReentrantLock list_lock;
 
     public CoarseGrainedListSet() {
         this.head = new Node(Integer.MIN_VALUE);
         this.head.next = new Node(Integer.MAX_VALUE);
-        this.listlock = new ReentrantLock();
+        this.list_lock = new ReentrantLock();
     }
 
     public boolean add(T value) {
         Node pred, curr;
         int key = value.hashCode();
-        listlock.lock();
+        list_lock.lock();
 
         try {
             pred = head;
@@ -31,14 +31,14 @@ public class CoarseGrainedListSet<T> implements ListSet<T> {
                 return true;
             }
         } finally {
-            listlock.unlock();
+            list_lock.unlock();
         }
     }
 
     public boolean remove(T value) {
         Node pred, curr;
         int key = value.hashCode();
-        listlock.lock();
+        list_lock.lock();
 
         try {
             pred = head;
@@ -54,29 +54,29 @@ public class CoarseGrainedListSet<T> implements ListSet<T> {
                 return false;
             }
         } finally {
-            listlock.unlock();
+            list_lock.unlock();
         }
     }
 
     public boolean contains(T value) {
         Node pred, curr;
         int key = value.hashCode();
-        listlock.lock();
+        list_lock.lock();
         try {
             pred = head;
             curr = pred.next;
-            while (curr.next != null && key != curr.key) {
-                //System.out.println(curr.key + " " + key);
+            while (curr.next != null && key != curr.key) { //Might need to be Integer.MAX?
+                System.out.println(curr.key + " " + key);
                 curr = curr.next;
             }
             if (key == curr.key) {
-                //System.out.println("Found: " + value);
+                System.out.println("Found: " + value);
                 return true;
             }
         } finally {
-            listlock.unlock();
+            list_lock.unlock();
         }
-        //System.out.println("Not Found: " + value);
+        System.out.println("Not Found: " + value);
         return false;
     }
 }
