@@ -1,9 +1,11 @@
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock ;
 
 public class LockQueue<T> implements MyQueue<T> {
   ReentrantLock enqLock , deqLock;
   Node<T> head;
   Node<T> tail;
+  AtomicInteger count;
   public class Node<T> {
 
 	    private T data;
@@ -20,6 +22,7 @@ public class LockQueue<T> implements MyQueue<T> {
 	  tail = head;
 	  enqLock = new ReentrantLock();
 	  deqLock = new ReentrantLock();
+	  count.set(0);
   }
   public boolean enq(T value) {
 	  if( value == null ) throw new NullPointerException();
@@ -28,6 +31,7 @@ public class LockQueue<T> implements MyQueue<T> {
 		  Node<T> e = new Node<T>(value) ;
 		  tail.next = e ;
 		  tail = e;
+		  count.incrementAndGet();
 	  }
 	  finally{
 		  enqLock.unlock();
@@ -42,6 +46,7 @@ public class LockQueue<T> implements MyQueue<T> {
 		}
 		result = head.next.data;
 		head = head.next;
+		count.decrementAndGet();
 	}
 	finally{
 		deqLock.unlock();
