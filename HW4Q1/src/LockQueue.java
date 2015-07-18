@@ -42,7 +42,8 @@ public class LockQueue<T> implements MyQueue<T> {
 	T result;
 	deqLock.lock();
 	try{
-		while(head.next == null ) {
+		if(head.next == null ) {
+			return null;
 		}
 		result = head.next.data;
 		head = head.next;
