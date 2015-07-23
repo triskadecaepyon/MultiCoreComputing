@@ -1,4 +1,7 @@
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock ;
 
 public class LockQueue<T> implements MyQueue<T> {
@@ -6,6 +9,7 @@ public class LockQueue<T> implements MyQueue<T> {
   Node<T> head;
   Node<T> tail;
   AtomicInteger count = new AtomicInteger(0);
+  public Condition deq_condition;
   public class Node<T> {
 
 	    private T data;
@@ -22,6 +26,7 @@ public class LockQueue<T> implements MyQueue<T> {
 	  tail = head;
 	  enqLock = new ReentrantLock();
 	  deqLock = new ReentrantLock();
+	  deq_condition = deqLock.newCondition();
 	  count.set(0);
   }
   public boolean enq(T value) {
@@ -42,9 +47,16 @@ public class LockQueue<T> implements MyQueue<T> {
 	T result;
 	deqLock.lock();
 	try{
-		if(head.next == null ) {
-			return null;
+		while(head.next == null){
+			System.out.println("Null queue");
+			try {
+				deq_condition.await();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		deq_condition.signalAll();
 		result = head.next.data;
 		head = head.next;
 		count.decrementAndGet();
@@ -56,12 +68,61 @@ public class LockQueue<T> implements MyQueue<T> {
     return result;
   }
   public static void main(String args[]){
-	  LockQueue<String> myQueue = new LockQueue<String>();
-	  myQueue.enq("Bad");
-	  myQueue.enq("Ugly");
-	  myQueue.enq("Worst");
-	  System.out.println(myQueue.deq());
-	  System.out.println(myQueue.deq());
-	  System.out.println(myQueue.deq());
+	  LockQueue<Integer> q = new LockQueue<Integer>();
+
+		class queueThread extends Thread {
+			int totalNum;
+			int dice;
+			volatile LockQueue<Integer> q;
+			Random rand;
+			Random diceRand;
+
+			queueThread(int n, LockQueue<Integer> q) {
+				totalNum = n;
+				this.q = q;
+				rand = new Random();
+				diceRand = new Random();
+			}
+
+			public void run() {
+				for (int i = 0; i < totalNum; i++) {
+					int value = 0;
+					dice = diceRand.nextInt(100);
+					try{
+						if (dice < 60) {
+							value = rand.nextInt();
+							q.enq(value);
+						} else {
+							System.out.println(q.deq());
+						}
+					}catch(IllegalStateException e){
+						System.out.println("EMPTY!!");
+					}
+					//System.out.println("i: " + i + "\tdice: "+ dice + "\tvalue: "+ value);
+				}
+			}
+		}
+
+		ArrayList<queueThread> threadPool = new ArrayList<queueThread>();
+	    int threadNum = 10;
+	    int operationNum = 2000;
+		//	System.out.println("perThread:" + perThread);
+		for (int i = 0; i < threadNum ; i++) {
+			int perThread = operationNum / threadNum;
+			threadPool.add(new queueThread(perThread , q));
+		}
+		for (int i = 0; i < threadNum; i++) {
+			threadPool.get(i).start();
+		}
+		int i = 0;
+		try {
+			for (i = 0; i < threadNum; i++) {
+				threadPool.get(i).join();
+			}
+		} catch (InterruptedException e) {
+			System.out.println("Thread " + i + " is interrupted");
+		}
+	  
   }
+  
 }
