@@ -5,7 +5,7 @@ public class LockQueue<T> implements MyQueue<T> {
   ReentrantLock enqLock , deqLock;
   Node<T> head;
   Node<T> tail;
-  AtomicInteger count;
+  AtomicInteger count = new AtomicInteger(0);
   public class Node<T> {
 
 	    private T data;
@@ -54,5 +54,14 @@ public class LockQueue<T> implements MyQueue<T> {
 	}
 	
     return result;
+  }
+  public static void main(String args[]){
+	  LockQueue<String> myQueue = new LockQueue<String>();
+	  myQueue.enq("Bad");
+	  myQueue.enq("Ugly");
+	  myQueue.enq("Worst");
+	  System.out.println(myQueue.deq());
+	  System.out.println(myQueue.deq());
+	  System.out.println(myQueue.deq());
   }
 }
