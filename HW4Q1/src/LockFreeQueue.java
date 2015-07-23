@@ -1,43 +1,47 @@
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
+import java.util.concurrent.atomic.AtomicStampedReference;
 
 public class LockFreeQueue<T> implements MyQueue<T> {
-  AtomicReference<Node> head;
-  AtomicReference<Node> tail;
+	AtomicStampedReference<Node> head;
+	AtomicStampedReference<Node> tail;
   AtomicInteger count;
   
   public class Node {
 
-		    public T data;
-		    public AtomicReference<Node> next;
+		    T data;
+	  		AtomicStampedReference<Node> next;
 
-			public Node(T data, int counter){
+			public Node(T data){
 		        this.data = data;
-		        next = new AtomicReference<Node>(null);
+				next =new AtomicStampedReference<Node>(null, 0);
 		    }
 
   }
   
 public LockFreeQueue(T data){
 	  count = new AtomicInteger(0);
-	  head = new AtomicReference<Node>(new Node(data, count.get()));
-	  tail = head;
+	  Node node = new Node(data);
+	  head = new AtomicStampedReference<Node>(node, 0);
+	  tail = new AtomicStampedReference<Node>(node, 0);
   }
   
 public boolean enq(T value) {
-	    Node e = new Node(value, count.getAndIncrement()) ;
+	    Node node = new Node(value);
+
 		while (true) {
-			Node last = tail.get();
-			Node next = last.next.get();
-			if (last == tail.get()) {
+			int[] tail_mark = new int[1];
+			Node last = tail.get(tail_mark);
+			int[] last_mark = new int[1];
+			Node next = tail.getReference().next.get(last_mark);
+
+			if (last == tail.getReference()) {
 				if (next == null) { // all clean for enq
-					if (last.next.compareAndSet(next, e)) { // set last.next first
-						tail.compareAndSet(last, e);
-						return false;
+					if (last.next.compareAndSet(next, node, last_mark[0], last_mark[0] + 1)) { // set last.next first
+						tail.compareAndSet(last, node, tail_mark[0], tail_mark[0] + 1);
+						return true;
 					}
 				} else {
-					tail.compareAndSet(last, next); // cannot return because my
+					tail.compareAndSet(last, next, tail_mark[0], tail_mark[0] + 1); // cannot return because my
 													// job is not finished yet
 				}
 			}
@@ -46,20 +50,23 @@ public boolean enq(T value) {
 
 public T deq() {
 		while (true) {
-			Node first = head.get();
-			Node last = tail.get();
-			Node next = first.next.get();
+			int[] tail_mark = new int[1];
+			int[] head_mark = new int[1];
+			int[] next_mark = new int[1];
+			Node first = head.get(head_mark);
+			Node last = tail.get(tail_mark);
+			Node next = first.next.get(next_mark);
 
-			if (first == head.get()){
+			if (first == head.getReference()){
 				if (first == last){
 					if (next == null){
-						return null;//throw new IllegalStateException("Cannot deq an empty queue");
+						continue;
 					}
-					tail.compareAndSet(last, next);
+					tail.compareAndSet(last, next, tail_mark[0], tail_mark[0] + 1);
 				}else{
 					T result = next.data;
 					System.out.println("result available");
-					if (head.compareAndSet(first, next)){
+					if (head.compareAndSet(first, next, head_mark[0], head_mark[0] + 1)){
 						return result;
 					}
 				}
