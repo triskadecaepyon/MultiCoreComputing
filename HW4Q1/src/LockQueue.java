@@ -9,7 +9,7 @@ public class LockQueue<T> implements MyQueue<T> {
   Node<T> head;
   Node<T> tail;
   AtomicInteger count = new AtomicInteger(0);
-  public Condition deq_condition;
+  final Condition deq_condition;
   public class Node<T> {
 
 	    private T data;
@@ -30,6 +30,7 @@ public class LockQueue<T> implements MyQueue<T> {
 	  count.set(0);
   }
   public boolean enq(T value) {
+	  boolean deq_flag = false;
 	  if( value == null ) throw new NullPointerException();
 	  enqLock.lock( ) ;
 	  try{ 
@@ -41,6 +42,16 @@ public class LockQueue<T> implements MyQueue<T> {
 	  finally{
 		  enqLock.unlock();
   	  }
+	  
+	  if(deq_flag == true){
+		  deqLock.lock();
+		  try{
+			  deq_condition.signalAll();
+		  }
+		  finally{
+			  deqLock.unlock();
+		  }
+	  }
       return false;
   }
   public T deq() {
@@ -56,7 +67,6 @@ public class LockQueue<T> implements MyQueue<T> {
 				e.printStackTrace();
 			}
 		}
-		deq_condition.signalAll();
 		result = head.next.data;
 		head = head.next;
 		count.decrementAndGet();
@@ -89,8 +99,8 @@ public class LockQueue<T> implements MyQueue<T> {
 					int value = 0;
 					dice = diceRand.nextInt(100);
 					try{
-						if (dice < 60) {
-							value = rand.nextInt();
+						if (dice > 30) {
+							value = rand.nextInt(100);
 							q.enq(value);
 						} else {
 							System.out.println(q.deq());
@@ -104,8 +114,8 @@ public class LockQueue<T> implements MyQueue<T> {
 		}
 
 		ArrayList<queueThread> threadPool = new ArrayList<queueThread>();
-	    int threadNum = 10;
-	    int operationNum = 2000;
+	    int threadNum = 5;
+	    int operationNum = 200;
 		//	System.out.println("perThread:" + perThread);
 		for (int i = 0; i < threadNum ; i++) {
 			int perThread = operationNum / threadNum;
